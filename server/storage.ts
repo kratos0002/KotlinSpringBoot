@@ -4,9 +4,7 @@ import { eq, and, SQL, sql } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
 import session from "express-session";
 import pkg from 'pg';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import { drizzle } from "drizzle-orm/node-postgres";
 
 // Create PostgreSQL session store
 const PostgresSessionStore = connectPg(session);
@@ -65,21 +63,11 @@ export class DatabaseStorage implements IStorage {
 
   constructor() {
     // Create session store connected to our database
-    const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'] as const;
-    
-    for (const envVar of requiredEnvVars) {
-      if (!process.env[envVar]) {
-        throw new Error(`${envVar} must be set in environment variables`);
-      }
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL must be set");
     }
     
-    const pool = new pkg.Pool({
-      host: process.env.DB_HOST as string,
-      port: parseInt(process.env.DB_PORT as string),
-      user: process.env.DB_USER as string,
-      password: process.env.DB_PASSWORD as string,
-      database: process.env.DB_NAME as string,
-    });
+    const pool = new pkg.Pool({ connectionString: process.env.DATABASE_URL });
     
     this.sessionStore = new PostgresSessionStore({
       pool,

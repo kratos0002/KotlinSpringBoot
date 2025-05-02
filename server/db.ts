@@ -1,27 +1,13 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import pkg from 'pg';
-const { Client } = pkg;
-import * as dotenv from 'dotenv';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from "@shared/schema";
+import 'dotenv/config';
 
-dotenv.config();
-
-const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'] as const;
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`${envVar} must be set in environment variables`);
-  }
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
 }
 
-const client = new Client({
-  host: process.env.DB_HOST as string,
-  port: parseInt(process.env.DB_PORT as string),
-  user: process.env.DB_USER as string,
-  password: process.env.DB_PASSWORD as string,
-  database: process.env.DB_NAME as string,
-});
-
-client.connect();
-
+export const client = postgres(process.env.DATABASE_URL);
 export const db = drizzle(client, { schema });
