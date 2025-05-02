@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
-import { insertPetSchema, insertUserSchema } from "@shared/schema";
+import { insertPetSchema, insertUserSchema, feedbackSchema } from "@shared/schema";
 import perplexityRoutes from "./routes/perplexity";
 import { perplexityClient } from "./utils/perplexityClient";
 
@@ -153,6 +153,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Feature voting routes
+  app.get("/api/features", async (req, res) => {
+    try {
+      const features = await storage.getFeatures();
+      res.json(features);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch features" });
+    }
+  });
+
+  app.post("/api/features/:id/vote", async (req, res) => {
+    try {
+      const featureId = parseInt(req.params.id);
+      const updatedFeature = await storage.incrementFeatureVotes(featureId);
+      
+      if (!updatedFeature) {
+        return res.status(404).json({ message: "Feature not found" });
+      }
+      
+      res.json(updatedFeature);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update feature votes" });
+    }
+  });
+
   // City Information routes
   app.get("/api/info", async (req, res) => {
     try {
@@ -170,6 +195,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(info);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch city information" });
+    }
+  });
+
+  // Feedback routes
+  app.post("/api/feedback", async (req, res) => {
+    try {
+      const validationResult = feedbackSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Invalid feedback data",
+          errors: validationResult.error.errors
+        });
+      }
+      
+      const { email, feedback: feedbackText } = validationResult.data;
+      const result = await storage.createFeedback({
+        email,
+        feedback: feedbackText
+      });
+      
+      res.json(result);
+    } catch (err) {
+      console.error("Error submitting feedback:", err);
+      res.status(500).json({ message: "Failed to submit feedback" });
+    }
+  });
+
+  app.get("/api/feedback", async (req, res) => {
+    try {
+      const feedback = await storage.getFeedback();
+      res.json(feedback);
+    } catch (err) {
+      console.error("Error fetching feedback:", err);
+      res.status(500).json({ message: "Failed to fetch feedback" });
     }
   });
 

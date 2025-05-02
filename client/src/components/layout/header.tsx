@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { useCity } from "@/hooks/use-city";
+import { useCity } from "@/hooks/use-city.tsx";
 import { MapPin } from "lucide-react";
 import {
   Select,
@@ -12,10 +12,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const cities = [
+  { id: "Amsterdam", name: "Amsterdam" },
+  { id: "Dublin", name: "Dublin" },
+  { id: "Calgary", name: "Calgary" },
+];
+
 export default function Header() {
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
-  const { selectedCity, setSelectedCity, cities } = useCity();
+  const { city, updateCity } = useCity();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const publicNavItems = [
@@ -31,64 +37,17 @@ export default function Header() {
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <Link href="/">
-              <span className="text-2xl font-bold">PawConnect</span>
-            </Link>
-            <nav className="hidden md:flex items-center space-x-6">
-              {publicNavItems.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <span className="text-gray-600 hover:text-gray-900">
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-              {user && privateNavItems.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <span className="text-gray-600 hover:text-gray-900">
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2">
-              <MapPin className="h-4 w-4 text-gray-500" />
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Select city" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city.id} value={city.name}>
-                      {city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="flex items-center justify-center">
+          <Link href="/">
+            <div className="flex items-center space-x-2">
+              <img src="/1.png" alt="PawConnect Logo" className="h-48 w-48" />
+              <span className="text-4xl font-bold">PawConnect</span>
             </div>
-            {!isLoading && (
-              <>
-                {user ? (
-                  <Button
-                    variant="outline"
-                    onClick={() => setLocation("/profile")}
-                  >
-                    Profile
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={() => setLocation("/auth")}
-                  >
-                    Sign In
-                  </Button>
-                )}
-              </>
-            )}
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <Button
               variant="ghost"
               className="md:hidden"
@@ -115,37 +74,22 @@ export default function Header() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4">
-            <nav className="flex flex-col space-y-4">
+          <div className="md:hidden">
+            <nav className="flex flex-col space-y-4 py-4">
               {publicNavItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <span className="block text-gray-600 hover:text-gray-900">
+                  <span className="text-gray-600 hover:text-gray-900">
                     {item.label}
                   </span>
                 </Link>
               ))}
               {user && privateNavItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <span className="block text-gray-600 hover:text-gray-900">
+                  <span className="text-gray-600 hover:text-gray-900">
                     {item.label}
                   </span>
                 </Link>
               ))}
-              <div className="flex items-center space-x-2 pt-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Select city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map((city) => (
-                      <SelectItem key={city.id} value={city.name}>
-                        {city.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </nav>
           </div>
         )}

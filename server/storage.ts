@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser, pets, type Pet, type InsertPet, serviceProviders, type ServiceProvider, type InsertServiceProvider, cityInformation, type CityInfo, type InsertCityInfo, perplexityServices, type PerplexityService, type InsertPerplexityService, perplexityPetCare, type PerplexityPetCare, type InsertPerplexityPetCare } from "@shared/schema";
+import { users, type User, type InsertUser, pets, type Pet, type InsertPet, serviceProviders, type ServiceProvider, type InsertServiceProvider, cityInformation, type CityInfo, type InsertCityInfo, perplexityServices, type PerplexityService, type InsertPerplexityService, perplexityPetCare, type PerplexityPetCare, type InsertPerplexityPetCare, features, type Feature, type InsertFeature, feedback, type Feedback, type InsertFeedback } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, SQL, sql } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
@@ -45,8 +45,17 @@ export interface IStorage {
   createPerplexityPetCare(petCare: InsertPerplexityPetCare): Promise<PerplexityPetCare>;
   updatePerplexityPetCare(topic: string, city: string, content: string): Promise<PerplexityPetCare | undefined>;
 
+  // Feature voting methods
+  incrementFeatureVotes(featureId: number): Promise<Feature>;
+
   // Session store
   sessionStore: session.Store;
+
+  getFeatures(): Promise<Feature[]>;
+
+  // Feedback methods
+  createFeedback(feedbackData: InsertFeedback): Promise<Feedback>;
+  getFeedback(): Promise<Feedback[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -74,10 +83,11 @@ export class DatabaseStorage implements IStorage {
     try {
       // Force reseeding by truncating the tables
       await db.execute(sql`TRUNCATE TABLE city_information CASCADE`);
+      await db.execute(sql`TRUNCATE TABLE features CASCADE`);
       
       // Add sample city information
       const cityInfoData = [
-      {
+        {
           city: "Amsterdam",
           country: "Netherlands",
           category: "Pet-Friendly Spaces",
@@ -109,8 +119,79 @@ export class DatabaseStorage implements IStorage {
       for (const info of cityInfoData) {
         await this.createCityInfo(info);
       }
+
+      // Add initial features
+      const initialFeatures = [
+        {
+          name: "Mobile App",
+          description: "Native iOS and Android apps for on-the-go access",
+          icon: "Mobile",
+          votes: 0,
+          category: "platform"
+        },
+        {
+          name: "Pet Profiles",
+          description: "Create detailed profiles for your pets with photos and info",
+          icon: "User",
+          votes: 0,
+          category: "profile"
+        },
+        {
+          name: "Local Deals",
+          description: "Discover exclusive deals from local pet stores and services",
+          icon: "Percent",
+          votes: 0,
+          category: "community"
+        },
+        {
+          name: "Pet Playdate Matching",
+          description: "Find compatible playmates for your pet based on personality",
+          icon: "Heart",
+          votes: 0,
+          category: "community"
+        },
+        {
+          name: "Health Tracking",
+          description: "Monitor vaccinations, medications, and vet appointments",
+          icon: "Activity",
+          votes: 0,
+          category: "health"
+        },
+        {
+          name: "Lost Pet Alerts",
+          description: "Send instant notifications to nearby users about lost pets",
+          icon: "Bell",
+          votes: 0,
+          category: "safety"
+        },
+        {
+          name: "Pet-Friendly Map",
+          description: "Interactive map of parks, cafes, and hotels that welcome pets",
+          icon: "Map",
+          votes: 0,
+          category: "community"
+        },
+        {
+          name: "Pet Sitter Marketplace",
+          description: "Find and book trusted pet sitters in your neighborhood",
+          icon: "Home",
+          votes: 0,
+          category: "services"
+        },
+        {
+          name: "Training Resources",
+          description: "Access to professional training videos and tips",
+          icon: "Graduation",
+          votes: 0,
+          category: "education"
+        }
+      ];
+
+      for (const feature of initialFeatures) {
+        await db.insert(features).values(feature);
+      }
       
-      console.log("Successfully seeded city information data");
+      console.log("Successfully seeded city information and features data");
     } catch (error) {
       console.error("Error seeding initial data:", error);
     }
@@ -455,6 +536,41 @@ export class DatabaseStorage implements IStorage {
       return updatedPetCare;
     } catch (error) {
       console.error("Error updating perplexity pet care:", error);
+      throw error;
+    }
+  }
+
+  async getFeatures(): Promise<Feature[]> {
+    return await db.select().from(features);
+  }
+
+  async incrementFeatureVotes(featureId: number): Promise<Feature> {
+    const [updatedFeature] = await db
+      .update(features)
+      .set({ votes: sql`${features.votes} + 1` })
+      .where(eq(features.id, featureId))
+      .returning();
+    return updatedFeature;
+  }
+
+  // Feedback methods
+  async createFeedback(feedbackData: InsertFeedback): Promise<Feedback> {
+    try {
+      const [result] = await db.insert(feedback)
+        .values(feedbackData)
+        .returning();
+      return result;
+    } catch (error) {
+      console.error("Error creating feedback:", error);
+      throw error;
+    }
+  }
+
+  async getFeedback(): Promise<Feedback[]> {
+    try {
+      return await db.select().from(feedback);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
       throw error;
     }
   }

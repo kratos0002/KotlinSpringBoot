@@ -132,6 +132,31 @@ export const insertPerplexityPetCareSchema = createInsertSchema(perplexityPetCar
   timestamp: true
 });
 
+// Features schema
+export const features = pgTable("features", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(),
+  votes: integer("votes").default(0),
+  category: text("category").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Feedback schema
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  feedback: text("feedback").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Feedback validation schema
+export const feedbackSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  feedback: z.string().min(1, "Feedback cannot be empty")
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -150,6 +175,12 @@ export type InsertPerplexityService = z.infer<typeof insertPerplexityServiceSche
 
 export type PerplexityPetCare = typeof perplexityPetCare.$inferSelect;
 export type InsertPerplexityPetCare = z.infer<typeof insertPerplexityPetCareSchema>;
+
+export type Feature = typeof features.$inferSelect;
+export type InsertFeature = typeof features.$inferInsert;
+
+export type Feedback = typeof feedback.$inferSelect;
+export type InsertFeedback = typeof feedback.$inferInsert;
 
 export type PetEventType = 
   | 'vet'

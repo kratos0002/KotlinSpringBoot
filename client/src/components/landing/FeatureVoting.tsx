@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useCity } from '@/hooks/use-city';
+import { useCity } from '@/hooks/use-city.tsx';
 import { Lightbulb, Search, CheckCircle, Dog, Cat, Fish, Bird, ThumbsUp, Heart, User, Calendar, Map, Star, Bell, MessageCircle, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,108 +20,69 @@ interface Feature {
 }
 
 const FeatureVoting = () => {
-  const { selectedCity } = useCity();
-  const [features, setFeatures] = useState<Feature[]>([
-    {
-      id: 1,
-      name: "Mobile App",
-      description: "Native iOS and Android apps for on-the-go access",
-      icon: "Mobile",
-      votes: 120,
-      voted: false,
-      category: "platform"
-    },
-    {
-      id: 2,
-      name: "Pet Profiles",
-      description: "Create detailed profiles for your pets with photos and info",
-      icon: "User",
-      votes: 95,
-      voted: false,
-      category: "profile"
-    },
-    {
-      id: 3,
-      name: "Local Deals",
-      description: "Discover exclusive deals from local pet stores and services",
-      icon: "Percent",
-      votes: 78,
-      voted: false,
-      category: "community"
-    },
-    {
-      id: 4,
-      name: "Pet Playdate Matching",
-      description: "Find compatible playmates for your pet based on personality",
-      icon: "Heart",
-      votes: 67,
-      voted: false,
-      category: "community"
-    },
-    {
-      id: 5,
-      name: "Health Tracking",
-      description: "Monitor vaccinations, medications, and vet appointments",
-      icon: "Activity",
-      votes: 55,
-      voted: false,
-      category: "health"
-    },
-    {
-      id: 6,
-      name: "Lost Pet Alerts",
-      description: "Send instant notifications to nearby users about lost pets",
-      icon: "Bell",
-      votes: 89,
-      voted: false,
-      category: "safety"
-    },
-    {
-      id: 7,
-      name: "Pet-Friendly Map",
-      description: "Interactive map of parks, cafes, and hotels that welcome pets",
-      icon: "Map",
-      votes: 72,
-      voted: false,
-      category: "community"
-    },
-    {
-      id: 8,
-      name: "Pet Sitter Marketplace",
-      description: "Find and book trusted pet sitters in your neighborhood",
-      icon: "Home",
-      votes: 63,
-      voted: false,
-      category: "services"
-    },
-    {
-      id: 9,
-      name: "Training Resources",
-      description: "Access to professional training videos and tips",
-      icon: "Graduation",
-      votes: 41,
-      voted: false,
-      category: "education"
-    }
-  ]);
+  const { city } = useCity();
+  const [features, setFeatures] = useState<Feature[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [newFeature, setNewFeature] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('popular'); // 'popular' or 'newest'
   const [isAddingFeature, setIsAddingFeature] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [voted, setVoted] = useState(false);
   
   // Fix the useInView hook to properly get ref and inView
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
-  const handleUpvote = (id: number) => {
-    const updatedFeatures = features.map(feature =>
-      feature.id === id ? { ...feature, votes: feature.votes + 1, voted: true } : feature
-    );
-    setFeatures(updatedFeatures);
-    
-    // Show toast notification (fallback to alert)
-    alert("Vote recorded! Thanks for helping us prioritize our roadmap.");
+  useEffect(() => {
+    const fetchFeatures = async () => {
+      try {
+        const response = await fetch('/api/features');
+        if (!response.ok) {
+          throw new Error('Failed to fetch features');
+        }
+        const data = await response.json();
+        setFeatures(data.map((feature: any) => ({
+          ...feature,
+          voted: false // Initialize voted state
+        })));
+      } catch (error) {
+        console.error('Error fetching features:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFeatures();
+  }, []);
+
+  const handleUpvote = async (id: number) => {
+    try {
+      const response = await fetch(`/api/features/${id}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to record vote');
+      }
+
+      const updatedFeature = await response.json();
+      
+      const updatedFeatures = features.map(feature =>
+        feature.id === id ? { ...feature, votes: updatedFeature.votes, voted: true } : feature
+      );
+      setFeatures(updatedFeatures);
+      
+      // Show toast notification (fallback to alert)
+      alert("Vote recorded! Thanks for helping us prioritize our roadmap.");
+      setVoted(true);
+    } catch (error) {
+      console.error('Error recording vote:', error);
+      alert('Failed to record your vote. Please try again.');
+    }
   };
 
   const handleNewFeature = (e: React.FormEvent) => {
@@ -172,17 +133,17 @@ const FeatureVoting = () => {
 
   // Define accent colors based on city
   const accentClass = cn(
-    selectedCity === 'Amsterdam' && 'text-amsterdam',
-    selectedCity === 'Dublin' && 'text-dublin',
-    selectedCity === 'Calgary' && 'text-calgary',
-    !selectedCity && 'text-primary'
+    city === 'Amsterdam' && 'text-amsterdam',
+    city === 'Dublin' && 'text-dublin',
+    city === 'Calgary' && 'text-calgary',
+    !city && 'text-primary'
   );
   
   const accentBgClass = cn(
-    selectedCity === 'Amsterdam' && 'bg-amsterdam',
-    selectedCity === 'Dublin' && 'bg-dublin',
-    selectedCity === 'Calgary' && 'bg-calgary',
-    !selectedCity && 'bg-primary'
+    city === 'Amsterdam' && 'bg-amsterdam',
+    city === 'Dublin' && 'bg-dublin',
+    city === 'Calgary' && 'bg-calgary',
+    !city && 'bg-primary'
   );
 
   // Get icon component based on name
@@ -374,7 +335,12 @@ const FeatureVoting = () => {
         
         {/* Features list */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {sortedFeatures.length > 0 ? (
+          {isLoading ? (
+            <div className="col-span-3 text-center py-20">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
+              <h3 className="text-xl font-medium text-gray-700 mt-4">Loading features...</h3>
+            </div>
+          ) : sortedFeatures.length > 0 ? (
             sortedFeatures.map((feature, index) => (
               <motion.div
                 key={feature.id}
@@ -444,31 +410,6 @@ const FeatureVoting = () => {
             </div>
           )}
         </div>
-        
-        {/* Stats */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <div className="bg-white p-6 rounded-xl border border-gray-200">
-            <p className="text-3xl font-bold text-primary mb-1">{features.length}</p>
-            <p className="text-gray-600">Features Proposed</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl border border-gray-200">
-            <p className="text-3xl font-bold text-primary mb-1">
-              {features.reduce((sum, feature) => sum + feature.votes, 0)}
-            </p>
-            <p className="text-gray-600">Total Votes Cast</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl border border-gray-200">
-            <p className="text-3xl font-bold text-primary mb-1">3</p>
-            <p className="text-gray-600">Features In Development</p>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
