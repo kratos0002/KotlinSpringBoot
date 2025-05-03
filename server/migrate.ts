@@ -1,4 +1,4 @@
-import { db } from './db';
+import { db } from './db.js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -10,6 +10,7 @@ async function runMigrations() {
   try {
     // Read and execute each migration file
     const migrationFiles = [
+      '0000_strong_mandroid.sql',
       '001_create_features_table.sql',
       '002_create_feedback_table.sql'
     ];

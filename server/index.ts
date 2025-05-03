@@ -1,8 +1,13 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -45,6 +50,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from the client's dist directory
+app.use(express.static(path.join(__dirname, '../../client/dist/public')));
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -67,7 +75,7 @@ app.use((req, res, next) => {
 
   // ALWAYS serve the app on port 3000
   // this serves both the API and the client.
-  const port = 3000;
+  const port = process.env.PORT || 3000;
   server.listen(port, () => {
     log(`serving on port ${port}`);
   });

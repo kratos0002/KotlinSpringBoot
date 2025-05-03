@@ -1,5 +1,5 @@
-import { users, type User, type InsertUser, pets, type Pet, type InsertPet, serviceProviders, type ServiceProvider, type InsertServiceProvider, cityInformation, type CityInfo, type InsertCityInfo, perplexityServices, type PerplexityService, type InsertPerplexityService, perplexityPetCare, type PerplexityPetCare, type InsertPerplexityPetCare, features, type Feature, type InsertFeature, feedback, type Feedback, type InsertFeedback } from "@shared/schema";
-import { db } from "./db";
+import { users, type User, type InsertUser, pets, type Pet, type InsertPet, serviceProviders, type ServiceProvider, type InsertServiceProvider, cityInformation, type CityInfo, type InsertCityInfo, perplexityServices, type PerplexityService, type InsertPerplexityService, perplexityPetCare, type PerplexityPetCare, type InsertPerplexityPetCare, features, type Feature, type InsertFeature, feedback, type Feedback, type InsertFeedback } from "../shared/schema.js";
+import { db } from "./db.js";
 import { eq, and, SQL, sql } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
 import session from "express-session";

@@ -1,11 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { storage } from "./storage.js";
+import { setupAuth } from "./auth.js";
 import { z } from "zod";
-import { insertPetSchema, insertUserSchema, feedbackSchema } from "@shared/schema";
-import perplexityRoutes from "./routes/perplexity";
-import { perplexityClient } from "./utils/perplexityClient";
+import { insertPetSchema, insertUserSchema, feedbackSchema } from "../shared/schema.js";
+import perplexityRoutes from "./routes/perplexity.js";
+import { perplexityClient } from "./utils/perplexityClient.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { perplexityClient } from '../utils/perplexityClient';
-import { storage } from '../storage';
+import { perplexityClient } from '../utils/perplexityClient.js';
+import { storage } from '../storage.js';
 
 const router = Router();
 
