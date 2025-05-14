@@ -4,6 +4,16 @@ A comprehensive pet care platform that helps pet owners manage their pets' healt
 
 ## Features
 
+### Information Hub
+- **Article Library**: Comprehensive collection of pet care articles and guides
+- **Trending Topics**: Real-time trending pet care topics and discussions
+- **Local Resources**: City-specific pet care information and services
+- **Personalized Content**: AI-powered content recommendations based on user preferences
+- **Search & Filter**: Advanced search and filtering capabilities for articles
+- **FAQs**: Frequently asked questions about pet care and services
+- **Related Articles**: Smart suggestions for related content
+- **Category System**: Organized content by categories and tags
+
 ### Educational Hub
 - **Breed Care Guides**: Comprehensive information about different pet breeds
 - **Training Videos**: Expert-led training resources
