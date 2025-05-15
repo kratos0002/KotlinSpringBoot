@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useCity } from '@/context/CityContext';
 import { cn } from '@/lib/utils';
 import { ListFilter, Map, Grid3X3, Store, MapPin, Filter, CheckCircle } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
 import ServiceCard from '@/components/directory/ServiceCard';
-import DirectorySearch from '@/components/directory/DirectorySearch';
+import DirectorySearch, { SearchFilters } from '@/components/directory/DirectorySearch';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import { mockServiceProviders, serviceCategories } from '@/lib/mockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,6 +37,13 @@ const Directory = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [mapView, setMapView] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterOptions, setFilterOptions] = useState({
+    rating: undefined as number | undefined,
+    priceRange: undefined as string | undefined,
+    services: [] as string[],
+    availability: [] as string[]
+  });
   const { toast } = useToast();
 
   // Get unique cities from service providers
@@ -95,11 +102,13 @@ const Directory = () => {
   }, [city, filters, activeTab]);
 
   // Handle search and filter
-  const handleSearch = (query: string, filterOptions: any) => {
-    setFilters({
-      ...filters,
-      query,
-      categories: filterOptions.categories,
+  const handleSearch = (filters: SearchFilters) => {
+    setSearchQuery(filters.query);
+    setFilterOptions({
+      rating: filters.rating,
+      priceRange: filters.priceRange,
+      services: filters.services || [],
+      availability: filters.availability || []
     });
   };
 

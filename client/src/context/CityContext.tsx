@@ -15,9 +15,9 @@ export function CityProvider({ children }: { children: ReactNode }) {
 
   const cityColor = {
     amsterdam: '#FFA500',
-    dublin: '#00A67E',
+    dublin: '#4CAF50',
     calgary: '#B91C1C',
-  }[city || ''] || '#000000';
+  }[city || 'amsterdam'];
 
   return (
     <CityContext.Provider value={{ city, setCity, cityColor }}>

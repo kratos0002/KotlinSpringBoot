@@ -33,7 +33,7 @@ interface PetFormProps {
 export default function PetForm({ pet, onSuccess }: PetFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [petPhoto, setPetPhoto] = useState<string | undefined>(pet?.profilePicture);
+  const [petPhoto, setPetPhoto] = useState<string | undefined>(pet?.profilePicture || undefined);
   
   const form = useForm<PetFormData>({
     resolver: zodResolver(petFormSchema),
@@ -200,8 +200,8 @@ export default function PetForm({ pet, onSuccess }: PetFormProps) {
               {...form.register("age", { valueAsNumber: true })}
             />
             <Select
+              defaultValue={form.getValues("ageUnit") || undefined}
               onValueChange={(value) => form.setValue("ageUnit", value)}
-              defaultValue={form.getValues("ageUnit")}
             >
               <SelectTrigger className="w-1/2 rounded-l-none">
                 <SelectValue />
@@ -218,8 +218,8 @@ export default function PetForm({ pet, onSuccess }: PetFormProps) {
         <div>
           <Label htmlFor="gender">Gender</Label>
           <Select
+            defaultValue={form.getValues("gender") || undefined}
             onValueChange={(value) => form.setValue("gender", value)}
-            defaultValue={form.getValues("gender")}
           >
             <SelectTrigger id="gender">
               <SelectValue placeholder="Select Gender" />

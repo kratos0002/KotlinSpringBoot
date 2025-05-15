@@ -7,7 +7,12 @@ import {
   Coffee, 
   GraduationCap,
   Store,
-  Bone
+  Bone,
+  BookOpen,
+  PawPrint,
+  Heart,
+  Award,
+  Sparkles
 } from 'lucide-react';
 
 export const serviceCategories = [
@@ -159,45 +164,104 @@ export const mockServiceProviders = [
 // Mock articles for the info hub
 export const mockArticles = [
   {
-    id: 1,
-    title: "Essential Vaccinations for Your Pet",
-    category: "Health",
-    city: "amsterdam",
-    excerpt: "Learn about the core vaccines your pet needs and when to get them.",
-    content: "Vaccinations are crucial for protecting your pet against various diseases...",
-    image: "https://images.unsplash.com/photo-1612460036362-f0f1884d7fc4?w=800",
-    date: "2024-01-15",
-    author: "Dr. Sarah Johnson",
-    views: 1250,
-    tags: ["Health", "Vaccinations", "Preventive Care"],
-    trending: true
+    id: '1',
+    title: 'Essential Pet Care Tips for New Pet Parents',
+    city: 'amsterdam',
+    category: 'Care Guide',
+    image: 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800&auto=format&fit=crop',
+    excerpt: 'A comprehensive guide for new pet parents covering basic care, nutrition, and health maintenance.',
+    content: 'Being a new pet parent can be both exciting and overwhelming...',
+    date: '2024-03-15',
+    tags: ['New Pet', 'Care Guide', 'Tips'],
+    icon: BookOpen,
+    views: 1200
   },
   {
-    id: 2,
-    title: "Choosing the Right Pet Insurance",
-    category: "Insurance",
-    city: "dublin",
-    excerpt: "Compare different pet insurance options to find the best coverage.",
-    content: "Pet insurance can help cover unexpected veterinary costs...",
-    image: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=800",
-    date: "2024-01-20",
-    author: "Mark Thompson",
-    views: 980,
-    tags: ["Insurance", "Financial Planning", "Healthcare"],
-    trending: false
+    id: '2',
+    title: 'Understanding Your Pet\'s Body Language',
+    city: 'dublin',
+    category: 'Behavior',
+    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop',
+    excerpt: 'Learn to interpret your pet\'s body language and understand their needs better.',
+    content: 'Animals communicate primarily through body language...',
+    date: '2024-03-14',
+    tags: ['Behavior', 'Communication', 'Training'],
+    icon: PawPrint,
+    views: 980
   },
   {
-    id: 3,
-    title: "Tips for Moving with Pets",
-    category: "Lifestyle",
-    city: "calgary",
-    excerpt: "Make your move stress-free for both you and your pets.",
-    content: "Moving to a new home can be stressful for pets...",
-    image: "https://images.unsplash.com/photo-1523480717984-24cba35ae1ef?w=800",
-    date: "2024-01-25",
-    author: "Emily Parker",
-    views: 1500,
-    tags: ["Moving", "Stress Management", "Pet Care"],
-    trending: true
+    id: '3',
+    title: 'Preventive Healthcare for Pets',
+    city: 'calgary',
+    category: 'Health',
+    image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800&auto=format&fit=crop',
+    excerpt: 'A guide to preventive healthcare measures to keep your pet healthy and happy.',
+    content: 'Regular preventive care is essential for your pet\'s health...',
+    date: '2024-03-13',
+    tags: ['Health', 'Veterinary', 'Prevention'],
+    icon: Stethoscope,
+    views: 850
+  },
+  {
+    id: '4',
+    title: 'Pet-Friendly Home Modifications',
+    city: 'amsterdam',
+    category: 'Lifestyle',
+    image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop',
+    excerpt: 'Make your home safe and comfortable for your pets with these modifications.',
+    content: 'Creating a pet-friendly home environment is crucial...',
+    date: '2024-03-12',
+    tags: ['Home', 'Safety', 'DIY'],
+    icon: Heart,
+    views: 720
+  },
+  {
+    id: '5',
+    title: 'Grooming Tips for Different Pet Types',
+    city: 'dublin',
+    category: 'Grooming',
+    image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800&auto=format&fit=crop',
+    excerpt: 'Professional grooming tips for different types of pets and coat care.',
+    content: 'Regular grooming is essential for your pet\'s health and appearance...',
+    date: '2024-03-11',
+    tags: ['Grooming', 'Care', 'Tips'],
+    icon: Scissors,
+    views: 650
+  },
+  {
+    id: '6',
+    title: 'Pet-Friendly Cafes and Restaurants Guide',
+    city: 'calgary',
+    category: 'Lifestyle',
+    image: 'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=800&auto=format&fit=crop',
+    excerpt: 'Discover the best pet-friendly dining spots in your city.',
+    content: 'More establishments are becoming pet-friendly...',
+    date: '2024-03-10',
+    tags: ['Dining', 'Social', 'City Guide'],
+    icon: Coffee,
+    views: 890
+  }
+];
+
+export const faqs = [
+  {
+    question: "How often should I take my pet to the vet?",
+    answer: "Adult dogs and cats should visit the vet at least once a year for a check-up. Puppies and kittens need more frequent visits, typically every 3-4 weeks until they're about 4 months old. Senior pets may need bi-annual check-ups."
+  },
+  {
+    question: "What vaccinations does my pet need?",
+    answer: "Core vaccinations for dogs include distemper, parvovirus, and rabies. For cats, core vaccines include panleukopenia, calicivirus, herpesvirus, and rabies. Your vet can provide a personalized vaccination schedule based on your pet's age, lifestyle, and risk factors."
+  },
+  {
+    question: "How can I tell if my pet is at a healthy weight?",
+    answer: "You should be able to feel your pet's ribs without pressing too hard, and see a visible waist when viewed from above. If you're unsure, consult your veterinarian for a proper assessment and dietary recommendations."
+  },
+  {
+    question: "What should I do if my pet has an emergency after hours?",
+    answer: "Keep the contact information for your nearest 24-hour emergency veterinary clinic readily available. Know the signs of common pet emergencies and don't hesitate to seek immediate care if your pet shows concerning symptoms."
+  },
+  {
+    question: "How can I socialize my pet properly?",
+    answer: "Start socializing your pet early, exposing them to different people, animals, and environments in a positive way. Use treats and praise to create positive associations. For puppies, consider puppy classes once they've received their core vaccinations."
   }
 ]; 

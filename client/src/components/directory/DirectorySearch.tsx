@@ -1,145 +1,185 @@
 import React, { useState } from 'react';
-import { Search, X, Filter } from 'lucide-react';
+import { Search, Filter, X } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { serviceCategories } from '@/lib/mockData';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface DirectorySearchProps {
-  onSearch: (query: string, filterOptions: { categories: number[] }) => void;
+  onSearch: (filters: SearchFilters) => void;
 }
 
-const DirectorySearch = ({ onSearch }: DirectorySearchProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+export interface SearchFilters {
+  query: string;
+  rating?: number;
+  priceRange?: string;
+  services?: string[];
+  availability?: string[];
+}
 
-  const handleSearch = () => {
-    onSearch(searchQuery, { categories: selectedCategories });
+const DirectorySearch: React.FC<DirectorySearchProps> = ({ onSearch }) => {
+  const [filters, setFilters] = useState<SearchFilters>({
+    query: '',
+    rating: undefined,
+    priceRange: undefined,
+    services: [],
+    availability: []
+  });
+
+  const [showFilters, setShowFilters] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFilters = { ...filters, query: e.target.value };
+    setFilters(newFilters);
+    onSearch(newFilters);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const handleCategoryToggle = (categoryId: number) => {
-    setSelectedCategories(prev => {
-      if (prev.includes(categoryId)) {
-        return prev.filter(id => id !== categoryId);
-      } else {
-        return [...prev, categoryId];
-      }
-    });
+  const handleFilterChange = (type: keyof SearchFilters, value: any) => {
+    const newFilters = { ...filters, [type]: value };
+    setFilters(newFilters);
+    onSearch(newFilters);
   };
 
   const clearFilters = () => {
-    setSelectedCategories([]);
-    onSearch(searchQuery, { categories: [] });
+    const newFilters = {
+      query: '',
+      rating: undefined,
+      priceRange: undefined,
+      services: [],
+      availability: []
+    };
+    setFilters(newFilters);
+    onSearch(newFilters);
+  };
+
+  const hasActiveFilters = () => {
+    return filters.rating || filters.priceRange || 
+           (filters.services && filters.services.length > 0) || 
+           (filters.availability && filters.availability.length > 0);
   };
 
   return (
-    <Card className="relative">
-      <CardContent className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search Input */}
-          <div className="flex-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-muted-foreground" />
+    <Card className="p-4">
+      <div className="space-y-4">
+        {/* Search Input */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search for pet services..."
+            className="w-full rounded-md border border-input pl-9 pr-4 py-2 text-sm"
+            value={filters.query}
+            onChange={handleInputChange}
+          />
+          {filters.query && (
+            <button
+              onClick={() => handleFilterChange('query', '')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter Toggle */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              "flex items-center space-x-2 text-sm",
+              showFilters && "text-primary"
+            )}
+          >
+            <Filter className="h-4 w-4" />
+            <span>Filters</span>
+          </button>
+          
+          {hasActiveFilters() && (
+            <button
+              onClick={clearFilters}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {/* Filter Options */}
+        {showFilters && (
+          <div className="grid gap-4 pt-4 border-t">
+            {/* Rating Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Rating</label>
+              <div className="flex space-x-2">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => handleFilterChange('rating', rating)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md text-sm",
+                      filters.rating === rating
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted hover:bg-muted/80"
+                    )}
+                  >
+                    {rating}★
+                  </button>
+                ))}
+              </div>
             </div>
-            <input
-              type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
-              placeholder="Search for services..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            {searchQuery && (
-              <button
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
-                onClick={() => {
-                  setSearchQuery('');
-                  onSearch('', { categories: selectedCategories });
-                }}
-              >
-                <X className="h-4 w-4" />
-              </button>
+
+            {/* Price Range Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Price Range</label>
+              <div className="flex space-x-2">
+                {['$', '$$', '$$$'].map((price) => (
+                  <button
+                    key={price}
+                    onClick={() => handleFilterChange('priceRange', price)}
+                    className={cn(
+                      "px-3 py-1 rounded-md text-sm",
+                      filters.priceRange === price
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted hover:bg-muted/80"
+                    )}
+                  >
+                    {price}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Active Filters */}
+            {hasActiveFilters() && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {filters.rating && (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    {filters.rating}★
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => handleFilterChange('rating', undefined)}
+                    />
+                  </Badge>
+                )}
+                {filters.priceRange && (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    {filters.priceRange}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => handleFilterChange('priceRange', undefined)}
+                    />
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
-
-          {/* Filter Button */}
-          <div className="flex items-center">
-            <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-              <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className={cn(
-                    "flex items-center gap-2",
-                    selectedCategories.length > 0 && "border-primary text-primary"
-                  )}
-                >
-                  <Filter className="h-4 w-4" />
-                  Filters
-                  {selectedCategories.length > 0 && (
-                    <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
-                      {selectedCategories.length}
-                    </span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Categories</h4>
-                    {selectedCategories.length > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearFilters}
-                        className="h-auto p-0 text-muted-foreground hover:text-foreground"
-                      >
-                        Clear all
-                      </Button>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    {serviceCategories.map((category) => (
-                      <div key={category.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`category-${category.id}`}
-                          checked={selectedCategories.includes(category.id)}
-                          onCheckedChange={() => handleCategoryToggle(category.id)}
-                        />
-                        <label
-                          htmlFor={`category-${category.id}`}
-                          className="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          <category.icon className="h-4 w-4 mr-2" />
-                          {category.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={() => {
-                        handleSearch();
-                        setIsFiltersOpen(false);
-                      }}
-                    >
-                      Apply Filters
-                    </Button>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-      </CardContent>
+        )}
+      </div>
     </Card>
   );
 };

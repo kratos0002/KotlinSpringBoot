@@ -142,7 +142,7 @@ export function PetCalendar({ selectedPet }: PetCalendarProps) {
         open={addEventDialogOpen}
         onOpenChange={setAddEventDialogOpen}
         selectedDate={selectedDate}
-        petId={selectedPet.id}
+        petId={String(selectedPet.id)}
       />
 
       {/* Event Details Dialog */}

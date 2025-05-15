@@ -1,99 +1,74 @@
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
-import { useCity } from "@/hooks/use-city.tsx";
-import { MapPin } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React from 'react';
+import { useCity } from '@/context/CityContext';
+import { cn } from '@/lib/utils';
+import { MapPin } from 'lucide-react';
+import AnimatedButton from '@/components/ui/AnimatedButton';
 
-const cities = [
-  { id: "Amsterdam", name: "Amsterdam" },
-  { id: "Dublin", name: "Dublin" },
-  { id: "Calgary", name: "Calgary" },
-];
+const Header = () => {
+  const { city, setCity } = useCity();
 
-export default function Header() {
-  const [, setLocation] = useLocation();
-  const { user, isLoading } = useAuth();
-  const { city, updateCity } = useCity();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const publicNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/info", label: "Info Hub" },
-  ];
-
-  const privateNavItems = [
-    { href: "/pets", label: "My Pets" },
-    { href: "/services", label: "Services" },
+  const cities = [
+    { id: 'amsterdam', name: 'Amsterdam' },
+    { id: 'dublin', name: 'Dublin' },
+    { id: 'calgary', name: 'Calgary' },
   ];
 
   return (
-    <header className="border-b">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-center">
-          <Link href="/">
-            <div className="flex items-center space-x-2">
-              <img src="/1.png" alt="PawConnect Logo" className="h-48 w-48" />
-              <span className="text-4xl font-bold">PawConnect</span>
-            </div>
-          </Link>
-        </div>
-
-        <div className="flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center">
-            <Button
-              variant="ghost"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isMobileMenuOpen ? (
-                  <path d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </Button>
+            <a href="/" className="text-2xl font-bold">
+              PawConnect
+            </a>
+          </div>
+
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="/info-hub" className="text-sm font-medium hover:text-primary">
+              Info Hub
+            </a>
+            <a href="/directory" className="text-sm font-medium hover:text-primary">
+              Directory
+            </a>
+            <a href="/education" className="text-sm font-medium hover:text-primary">
+              Education
+            </a>
+          </nav>
+
+          {/* City Selection */}
+          <div className="flex items-center space-x-4">
+            <div className="hidden sm:flex items-center">
+              <MapPin className="w-4 h-4 mr-1 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">City:</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {cities.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setCity(c.id as any)}
+                  className={cn(
+                    'px-3 py-1 text-sm rounded-full transition-colors',
+                    city === c.id
+                      ? cn(
+                          'text-white',
+                          c.id === 'amsterdam' && 'bg-amsterdam',
+                          c.id === 'dublin' && 'bg-dublin',
+                          c.id === 'calgary' && 'bg-calgary'
+                        )
+                      : 'bg-muted hover:bg-muted/80'
+                  )}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden">
-            <nav className="flex flex-col space-y-4 py-4">
-              {publicNavItems.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <span className="text-gray-600 hover:text-gray-900">
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-              {user && privateNavItems.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <span className="text-gray-600 hover:text-gray-900">
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );
-}
+};
+
+export default Header;
